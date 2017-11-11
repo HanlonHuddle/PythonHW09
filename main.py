@@ -20,10 +20,11 @@ class FunctionTest(unittest.TestCase):
 
 def main():
     """ main entrance for part 2 """
-    unittest.main(exit=False, verbosity=2)
-    # repo = Repository()
-    # repo.load(CONST_FILEDIR)
+    # unittest.main(exit=False, verbosity=2)
+    repo = Repository()
+    repo.load(CONST_FILEDIR)
     # print(repo.print_table())
+    repo.print_table()
 
 if __name__ == "__main__":
     main()
