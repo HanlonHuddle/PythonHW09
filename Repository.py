@@ -17,6 +17,11 @@ class Student:
         # <string -> string>
         # defaultdict(str) to store the classes taken and the grade where the course
         # is the key and the grade is the value.
+        self.rrequired = set()
+        # remaining required, list of string
+        self.relective = set()
+        # remaining elective, list of string
+        self.completedclasses = []
 
 class Instructure:
     """ class Instructure"""
@@ -34,8 +39,8 @@ class Major:
     """ class Major """
     def __init__(self, department):
         self.department = department
-        self.required = []
-        self.elective = []
+        self.required = set()
+        self.elective = set()
 
 class Repository:
     """ class repository """
@@ -100,23 +105,49 @@ class Repository:
             with fprocess:
                 for line in fprocess:
                     tuparr = line.strip().split('\t')
-                    if tuparr[0] in self.majorsDict:
-                        if tuparr[1] == "E":
-                            self.majorsDict[tuparr[0]].elective.extend(tuparr[2])
-                        elif tuparr[1] == "R":
-                            self.majorsDict[tuparr[0]].required.extend(tuparr[2])
+                    if tuparr[0] not in self.majorsDict:
+                        self.majorsDict[tuparr[0]] = Major(tuparr[0])
+                    if tuparr[1] == "E":
+                        self.majorsDict[tuparr[0]].elective.add(tuparr[2])
+                    elif tuparr[1] == 'R':
+                        self.majorsDict[tuparr[0]].required.add(tuparr[2])
 
-        return [self.studentDict, self.instructureDict]
+        for _id in self.studentDict:
+            dep = self.studentDict[_id].department
+            deprequired = self.majorsDict[dep].required
+            classestaken = set(self.studentDict[_id].classes_taken.keys())
+            passrank = ["A", "A-", "B+", "B", "B-", "C+", "C"]
+            remainingrequired = [i for i in deprequired
+                                 if not self.studentDict[_id].classes_taken[i] in passrank]
+            passedelective = classestaken.intersection(self.majorsDict[dep].elective)
+            noep = len(passedelective)
+            for ele in passedelective:
+                if self.studentDict[_id].classes_taken[ele] not in passrank:
+                    noep -= 1
+            if noep == 0:
+                self.studentDict[_id].relective = list(self.majorsDict[dep].elective)
+            else:
+                self.studentDict[_id].relective = []
+            self.studentDict[_id].rrequired = remainingrequired
+            # remove empty classestaken that added from above operation
+            self.studentDict[_id].classes_taken = {k: v for k, v in
+                                                   self.studentDict[_id].classes_taken.items() if v}
+            self.studentDict[_id].completedclasses = [i for i in classestaken
+                                                      if self.studentDict[_id].classes_taken[i]
+                                                      in passrank]
 
     def print_table(self):
         """ Method to print the result """
         ptable = prettytable.PrettyTable()
-        ptable.field_names = ["CWID", "Name", "Complited Cources"]
+        ptable.field_names = ["CWID", "Name", "Complited Cources",
+                              "Remaining Required", "Remaining Elective"]
         for _id in self.studentDict:
             ptable.add_row(
                 [self.studentDict[_id].cwid,
                  self.studentDict[_id].name,
-                 sorted(list(self.studentDict[_id].classes_taken))]
+                 sorted(self.studentDict[_id].completedclasses),
+                 sorted(list(self.studentDict[_id].rrequired)),
+                 sorted(list(self.studentDict[_id].relective))]
             )
 
         ptable2 = prettytable.PrettyTable()
@@ -135,9 +166,9 @@ class Repository:
         ptable3.field_names = ["Dept", "Required", "Elective"]
         for dept in self.majorsDict:
             ptable3.add_row(
-                [self.majorsDict[dept].name,
-                 self.majorsDict[dept].required,
-                 self.majorsDict[dept].elective]
+                [self.majorsDict[dept].department,
+                 sorted(list(self.majorsDict[dept].required)),
+                 sorted(list(self.majorsDict[dept].elective))]
             )
 
         # result[file_name] = subdic

@@ -7,7 +7,7 @@ import unittest
 from Repository import Repository
 
 # remember to change this dir for test
-CONST_FILEDIR = "/home/hli68/Programming/SSW810/HanrunLiHW09/HW09Data"
+CONST_FILEDIR = "/home/hli68/Programming/SSW810/SSW810GHrepo/HW09Data"
 
 class FunctionTest(unittest.TestCase):
     """ verify that Repository works fine """
