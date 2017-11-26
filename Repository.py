@@ -141,7 +141,7 @@ class Repository:
         ptable = prettytable.PrettyTable()
         ptable.field_names = ["CWID", "Name", "Complited Cources",
                               "Remaining Required", "Remaining Elective"]
-        for _id in self.studentDict:
+        for _id in sorted(self.studentDict):
             ptable.add_row(
                 [self.studentDict[_id].cwid,
                  self.studentDict[_id].name,
@@ -152,7 +152,7 @@ class Repository:
 
         ptable2 = prettytable.PrettyTable()
         ptable2.field_names = ["CWID", "Name", "Dept", "Cource", "Students"]
-        for _id in self.instructureDict:
+        for _id in sorted(self.instructureDict):
             for course in self.instructureDict[_id].classes_taught:
                 ptable2.add_row(
                     [self.instructureDict[_id].cwid,
@@ -164,7 +164,7 @@ class Repository:
 
         ptable3 = prettytable.PrettyTable()
         ptable3.field_names = ["Dept", "Required", "Elective"]
-        for dept in self.majorsDict:
+        for dept in sorted(self.majorsDict):
             ptable3.add_row(
                 [self.majorsDict[dept].department,
                  sorted(list(self.majorsDict[dept].required)),
@@ -180,4 +180,4 @@ class Repository:
         print(ptable2)
         # return result
 
-        return [ptable.get_string(), ptable2.get_string()]
+        return [ptable.get_string(), ptable3.get_string()]
